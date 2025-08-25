@@ -10,25 +10,29 @@ import 'package:upbox/services/storage_service.dart';
 class MyDrawer extends StatelessWidget {
   MyDrawer({super.key});
 
-  final User? user = Auth().currentUser;
+  User? get user {
+    return Auth().currentUser;
+  }
 
-  CollectionReference usersCollection =
-      FirebaseFirestore.instance.collection('users');
+  // Xóa các biến không cần thiết, chỉ truy cập Firestore trong closure
 
   final Storage storage = Storage();
 
   // ignore: prefer_typing_uninitialized_variables
   var imageName;
   getImage() async {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .where('id', isEqualTo: user!.uid)
-        .get()
-        .then((value) {
-      imageName = value.docs[0]['image_url'];
-
-      debugPrint('image url is :  $imageName');
-    });
+    final firestore = FirebaseFirestore.instance;
+    final u = user;
+    if (u != null) {
+      await firestore
+          .collection('users')
+          .where('id', isEqualTo: u.uid)
+          .get()
+          .then((value) {
+        imageName = value.docs[0]['image_url'];
+        debugPrint('image url is :  $imageName');
+      });
+    }
   }
 
   @override
@@ -38,14 +42,21 @@ class MyDrawer extends StatelessWidget {
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-            accountName: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("users")
-                  .where("id", isEqualTo: user!.uid)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            accountName: StreamBuilder<QuerySnapshot<Object?>>(
+              stream: (() {
+                final firestore = FirebaseFirestore.instance;
+                final u = user;
+                if (u != null) {
+                  return firestore
+                      .collection("users")
+                      .where("id", isEqualTo: u.uid)
+                      .snapshots();
+                } else {
+                  return const Stream<QuerySnapshot<Object?>>.empty();
+                }
+              })(),
+              builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  getImage();
                   var name = snapshot.data!.docs[0]['username'].toString();
                   return Text(
                     name,
@@ -69,7 +80,7 @@ class MyDrawer extends StatelessWidget {
               future: storage.downloadUrl("$imageName"),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  const CircleAvatar(
+                  return const CircleAvatar(
                     child: ClipOval(
                       child: Icon(Icons.person),
                     ),

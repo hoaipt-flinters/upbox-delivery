@@ -38,7 +38,8 @@ class _MainScreenState extends State<MainScreen> {
   var dRides;
   var dId;
   getData() async {
-    FirebaseFirestore.instance
+    final firestore = FirebaseFirestore.instance;
+    await firestore
         .collection('drivers')
         .where("driver_free", isEqualTo: 'true')
         .where("state", isEqualTo: widget.sName.trim())
@@ -57,14 +58,15 @@ class _MainScreenState extends State<MainScreen> {
 
   GeoPoint? dGeo;
   driverGeo() async {
-    FirebaseFirestore.instance
+    final firestore = FirebaseFirestore.instance;
+    await firestore
         .collection('drivers')
         .where("id", isEqualTo: dId)
         .get()
         .then((value) {
       dGeo = value.docs[0]['driver_location'];
-      print("driver latitude: ${dGeo!.latitude}");
-      print("driver longitude: ${dGeo!.longitude}");
+      print("driver latitude: \\${dGeo!.latitude}");
+      print("driver longitude: \\${dGeo!.longitude}");
     });
   }
 
@@ -115,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    dName,
+                    dName != null ? dName.toString() : '',
                     style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 30,
@@ -126,7 +128,7 @@ class _MainScreenState extends State<MainScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "$dRides ride(s)",
+                        dRides != null ? "$dRides ride(s)" : '',
                       )
                     ],
                   ),
@@ -141,7 +143,7 @@ class _MainScreenState extends State<MainScreen> {
                               Uri phoneDr = Uri.parse(
                                 'tel:$dNumber',
                               );
-
+                              
                               if (await launchUrl(phoneDr)) {
                                 debugPrint("Phone number is okay");
                               } else {
@@ -318,7 +320,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void endRide() async {
-    FirebaseFirestore.instance.collection('drivers').doc(dId).update({
+  final firestore = FirebaseFirestore.instance;
+  firestore.collection('drivers').doc(dId).update({
       "driver_free": "true",
       "driver_arrived": "waiting",
     });
@@ -446,7 +449,8 @@ class _MainScreenState extends State<MainScreen> {
                             GeoPoint geopoint =
                                 snapshot.data!.docs[0]['driver_location'];
                             if (status == "true" && !conditionMet) {
-                              FirebaseFirestore.instance
+                              final firestore = FirebaseFirestore.instance;
+                              firestore
                                   .collection('drivers')
                                   .doc(dId!)
                                   .update({

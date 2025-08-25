@@ -19,7 +19,9 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final User? user = Auth().currentUser;
+  User? get user {
+    return Auth().currentUser;
+  }
 
   void _showSignOut() {
     AwesomeDialog(
@@ -60,7 +62,8 @@ class _AccountPageState extends State<AccountPage> {
       gravity: ToastGravity.TOP,
       toastLength: Toast.LENGTH_SHORT,
     );
-    await FirebaseAuth.instance.currentUser!.delete().then((value) {
+  final auth = FirebaseAuth.instance;
+  await auth.currentUser!.delete().then((value) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) {
@@ -74,7 +77,8 @@ class _AccountPageState extends State<AccountPage> {
   // ignore: prefer_typing_uninitialized_variables
   var imageName;
   getImage() async {
-    await FirebaseFirestore.instance
+    final firestore = FirebaseFirestore.instance;
+    await firestore
         .collection('users')
         .where('id', isEqualTo: user!.uid)
         .get()
@@ -82,13 +86,14 @@ class _AccountPageState extends State<AccountPage> {
       setState(() {
         imageName = value.docs[0]['image_url'];
       });
-
       debugPrint('image url is :  $imageName');
     });
   }
 
-  CollectionReference usersCollection =
-      FirebaseFirestore.instance.collection("users");
+  CollectionReference get usersCollection {
+    final firestore = FirebaseFirestore.instance;
+    return firestore.collection("users");
+  }
 
   final Storage storage = Storage();
 

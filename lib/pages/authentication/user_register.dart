@@ -74,8 +74,10 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future addUserDetails(String username, String email, String password) async {
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
-    await FirebaseFirestore.instance.collection('users').doc(userId).set({
+    final auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
+    final firestore = FirebaseFirestore.instance;
+    await firestore.collection('users').doc(userId).set({
       'id': userId,
       'username': username,
       'email': email,

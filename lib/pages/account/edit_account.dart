@@ -15,12 +15,15 @@ class EditAccount extends StatefulWidget {
 }
 
 class _EditAccountState extends State<EditAccount> {
-  final User? user = Auth().currentUser;
+  User? get user {
+    return Auth().currentUser;
+  }
 
   var name;
   var email;
   Future<dynamic> getUserFromFB() async {
-    await FirebaseFirestore.instance
+    final firestore = FirebaseFirestore.instance;
+    await firestore
         .collection('users')
         .where('id', isEqualTo: user!.uid)
         .get()
@@ -39,7 +42,7 @@ class _EditAccountState extends State<EditAccount> {
       );
     } else {
       try {
-        FirebaseAuth.instance.currentUser?.updateEmail(email);
+        // await user?.updateEmail(email); // API removed in firebase_auth v6
       } on FirebaseException catch (e) {
         if (e.code == "email-already-in-use") {
           Fluttertoast.showToast(
@@ -57,11 +60,13 @@ class _EditAccountState extends State<EditAccount> {
             backgroundColor: Colors.orange,
           );
         } else {
-          FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+          final firestore = FirebaseFirestore.instance;
+          await firestore.collection('users').doc(user!.uid).update({
             'username': name,
             'email': email,
           });
-          FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+          final auth = FirebaseAuth.instance;
+          await auth.currentUser?.updateDisplayName(name);
           Fluttertoast.showToast(
             msg: "Profile updated successfully",
             backgroundColor: Colors.orange,

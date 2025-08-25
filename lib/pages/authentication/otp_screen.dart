@@ -27,7 +27,6 @@ class _OTPscreenState extends State<OTPscreen> {
   TextEditingController five = TextEditingController();
   TextEditingController six = TextEditingController();
 
-  final User? user = Auth().currentUser;
 
   final FocusNode inpNode = FocusNode();
 
@@ -37,7 +36,8 @@ class _OTPscreenState extends State<OTPscreen> {
   // verify number
   void verifyPhone() async {
     try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
+      final auth = FirebaseAuth.instance;
+      await auth.verifyPhoneNumber(
         phoneNumber: widget.code + widget.phonenumber,
         verificationCompleted: (phoneAuthCredential) {
           debugPrint("all done");
@@ -63,7 +63,10 @@ class _OTPscreenState extends State<OTPscreen> {
     }
   }
 
-  String? userId = FirebaseAuth.instance.currentUser?.uid;
+  String? get userId {
+    final auth = FirebaseAuth.instance;
+    return auth.currentUser?.uid;
+  }
 
   int timeLeft = 120;
   void startCountDown() {
@@ -288,10 +291,12 @@ class _OTPscreenState extends State<OTPscreen> {
                                           five.text +
                                           six.text),
                                     );
-                                    await FirebaseAuth.instance.currentUser!
+                                    final auth = FirebaseAuth.instance;
+                                    final firestore = FirebaseFirestore.instance;
+                                    await auth.currentUser!
                                         .linkWithCredential(credentials)
                                         .then((value) {
-                                      FirebaseFirestore.instance
+                                      firestore
                                           .collection("users")
                                           .doc(userId)
                                           .update({

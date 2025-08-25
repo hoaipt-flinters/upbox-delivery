@@ -44,13 +44,11 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(
           create: (context) => LocationProvider(),
-          child: const AppStart(),
         ),
-
+        // Nếu muốn dùng GoogleSignInProvider, bỏ comment dòng dưới:
         // ChangeNotifierProvider(
         //   create: (context) => GoogleSignInProvider(),
-        //   child: const LoginPage(),
-        // )
+        // ),
       ],
       child: MaterialApp(
         theme: ThemeData(

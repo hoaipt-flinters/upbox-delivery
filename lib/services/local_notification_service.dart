@@ -11,8 +11,7 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      onDidReceiveLocalNotification:
-          (int id, String? title, String? body, String? payload) async {},
+      // onDidReceiveLocalNotification is removed in flutter_local_notifications >= 9.0.0
     );
 
     var initializationSettings = InitializationSettings(

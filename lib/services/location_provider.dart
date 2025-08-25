@@ -11,16 +11,14 @@ class LocationProvider with ChangeNotifier {
   Location get location => _location!;
 
   LatLng? _locationPosition;
-
   LatLng get locationPosition => _locationPosition!;
 
   bool locationServiceActive = true;
 
-  LocationProvider() {
-    _location = Location();
-  }
+  LocationProvider();
 
   initialization() async {
+    _location = Location();
     await getUserLocation();
   }
 
@@ -58,13 +56,17 @@ class LocationProvider with ChangeNotifier {
         _locationPosition!.latitude;
         _locationPosition!.longitude;
 
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(Auth().currentUser!.uid)
-            .update({
-          "user_lat": _locationPosition!.latitude,
-          "user_lng": _locationPosition!.longitude,
-        });
+        final firestore = FirebaseFirestore.instance;
+        final user = Auth().currentUser;
+        if (user != null) {
+          firestore
+              .collection('users')
+              .doc(user.uid)
+              .update({
+            "user_lat": _locationPosition!.latitude,
+            "user_lng": _locationPosition!.longitude,
+          });
+        }
         notifyListeners();
       });
     } catch (e) {
